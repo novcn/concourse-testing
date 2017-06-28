@@ -1,0 +1,26 @@
+
+resources:
+- name: pipeline-git
+  type: git
+  source:
+    uri: git@github.com:novcn/pipeline.git
+    branch: {{git-branch}}
+    private_key: {{private-github-key}}
+
+jobs:
+- name: run
+  serial: true
+  plan:
+  - get: pipeline-git
+    trigger: true
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: mhart/alpine-node, tag: 6}
+      inputs:
+      - name: pipeline-git
+      run:
+        path: ./pipeline-git/ci/scripts/test.sh
+
